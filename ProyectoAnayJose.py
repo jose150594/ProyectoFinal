@@ -55,7 +55,6 @@ def datos_biomedicos():
     usuario = [numero_de_identificacion, nombre, edad, peso, estatura, imc, None, None]
     datos.append(usuario)
     print("Datos registrados exitosamente.")
-
 # Submenú para análisis de datos
 def submenu_analisis():
     while True:
@@ -63,7 +62,8 @@ def submenu_analisis():
         print("1. Clasificar estudiantes según IMC")
         print("2. Mostrar personas con mayor y menor altura")
         print("3. Mostrar persona con mayor y menor peso")
-        print("4. Volver al menú principal")
+        print("4. Analizar presión arterial")
+        print("5. Volver al menú principal")
 
         seleccion = input("Escriba su elección: ")
 
@@ -74,6 +74,8 @@ def submenu_analisis():
         elif seleccion == "3":
             peso_extremos()
         elif seleccion == "4":
+            analizar_presion_arterial()
+        elif seleccion == "5":
             break
         else:
             print("Opción no válida. Intente de nuevo.")
@@ -117,6 +119,17 @@ def peso_extremos():
         print(menor_peso)
     else:
         print("No hay datos registrados.")
+# Función para analizar presión arterial
+def analizar_presion_arterial():
+    if datos:
+        columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
+        df = pd.DataFrame(datos, columns=columnas)
+        df['Estado de Presión'] = df.apply(lambda row: "Presión normal" if row['Presión Sistólica'] < 120 and row['Presión Diastólica'] < 80 else
+                                                        "Presión alta" if 120 <= row['Presión Sistólica'] < 140 or 80 <= row['Presión Diastólica'] < 90 else
+                                                        "Hipertensión" if row['Presión Sistólica'] >= 140 or row['Presión Diastólica'] >= 90 else "Datos insuficientes", axis=1)
+        print(df[['Nombre', 'Presión Sistólica', 'Presión Diastólica', 'Estado de Presión']])
+    else:
+        print("No hay datos registrados.")
 
 # Función para graficar distribución general
 def graficar_datos():
@@ -127,7 +140,8 @@ def graficar_datos():
         print("1. Distribución de IMC")
         print("2. Alturas")
         print("3. Pesos")
-        print("4. Salir")
+        print("4. Presiones arteriales")
+        print("5. Salir")
         seleccion = input("Elija una opción: ")
         if seleccion == "1":
             df['IMC'].plot(kind='hist', bins=10, color='skyblue', edgecolor='black')
@@ -146,6 +160,11 @@ def graficar_datos():
             plt.ylabel("Peso (kg)")
             plt.savefig('distribucion_pesos.png')
         elif seleccion == "4":
+            df[['Presión Sistólica', 'Presión Diastólica']].plot(kind='box')
+            plt.title("Distribución de Presiones Arteriales")
+            plt.ylabel("Presión (mm Hg)")
+            plt.savefig('distribucion_presiones.png')
+        elif seleccion == "5":
             return
         else:
             print("Opción no válida.")
@@ -154,83 +173,23 @@ def graficar_datos():
     else:
         print("No hay datos registrados.")
 
-
-# Función para generar reporte PDF
-def generar_reporte_pdf():
-    if datos:
-        c = canvas.Canvas("reporte_estudiantes.pdf", pagesize=letter)
-        c.setFont("Helvetica", 12)
-        c.drawString(30, 750, "Reporte de Estudiantes")
-        c.drawString(30, 730, "ID    Nombre    Edad    Peso(kg)    Estatura(m)    IMC")
-        y = 710
-        for estudiante in datos:
-            linea = f"{estudiante[0]}    {estudiante[1]}    {estudiante[2]}    {estudiante[3]}    {estudiante[4]}    {estudiante[5]}"
-            c.drawString(30, y, linea)
-            y -= 20
-            if y < 50:
-                c.showPage()
-                y = 750
-        c.save()
-        print("Reporte PDF generado exitosamente: reporte_estudiantes.pdf")
-    else:
-        print("No hay datos registrados.")
-
-# Función para categorizar el IMC
-def clasificar_imc():
-    if datos:
-        columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
-        df = pd.DataFrame(datos, columns=columnas)
-        df['Clasificacion IMC'] = df['IMC'].apply(lambda x: "Peso insuficiente" if x < 18.5 else
-                                                 "Peso normal" if x < 24.9 else
-                                                 "Sobrepeso" if x < 29.9 else "Obesidad")
-        print(df[['Nombre', 'IMC', 'Clasificacion IMC']])
-    else:
-        print("No hay datos registrados.")
-
-# Función para encontrar mayor y menor altura
-def altura_extremos():
-    if datos:
-        columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
-        df = pd.DataFrame(datos, columns=columnas)
-        mayor_altura = df.loc[df["Estatura (m)"].idxmax()]
-        menor_altura = df.loc[df["Estatura (m)"].idxmin()]
-        print("\nPersona con mayor altura:")
-        print(mayor_altura)
-        print("\nPersona con menor altura:")
-        print(menor_altura)
-    else:
-        print("No hay datos registrados.")
-
-# Función para encontrar mayor peso y altura
-def peso_altura_max():
-    if datos:
-        columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
-        df = pd.DataFrame(datos, columns=columnas)
-        max_peso_altura = df.loc[(df["Peso (kg)"] * df["Estatura (m)"]).idxmax()]
-        print("\nPersona con mayor peso y altura:")
-        print(max_peso_altura)
-    else:
-        print("No hay datos registrados.")
-
-# Función para generar reporte PDF
-def generar_reporte_pdf():
-    if datos:
-        c = canvas.Canvas("reporte_estudiantes.pdf", pagesize=letter)
-        c.setFont("Helvetica", 12)
-        c.drawString(30, 750, "Reporte de Estudiantes")
-        c.drawString(30, 730, "ID    Nombre    Edad    Peso(kg)    Estatura(m)    IMC")
-        y = 710
-        for estudiante in datos:
-            linea = f"{estudiante[0]}    {estudiante[1]}    {estudiante[2]}    {estudiante[3]}    {estudiante[4]}    {estudiante[5]}"
-            c.drawString(30, y, linea)
-            y -= 20
-            if y < 50:
-                c.showPage()
-                y = 750
-        c.save()
-        print("Reporte PDF generado exitosamente: reporte_estudiantes.pdf")
-    else:
-        print("No hay datos registrados.")
+# Función para monitorear la presión arterial
+def monitoreo_presion(numero_de_identificacion):
+    for usuario in datos:
+        if usuario[0] == numero_de_identificacion:
+            presion_sistolica = int(input("Ingrese su presión sistólica: "))
+            presion_diastolica = int(input("Ingrese su presión diastólica: "))
+            usuario[6] = presion_sistolica
+            usuario[7] = presion_diastolica
+            guardar_en_csv()  # Actualizar CSV
+            if presion_sistolica < 120 and presion_diastolica < 80:
+                print("Presión normal.")
+            elif 120 <=        presion_sistolica < 140 or 80 <= presion_diastolica < 90:
+                print("Advertencia: Presión alta.")
+            elif presion_sistolica >= 140 or presion_diastolica >= 90:
+                print("Advertencia: Hipertensión.")
+            return
+    print("Estudiante no registrado.")
 
 # Función para buscar estudiante y mostrar dataframes
 def buscar_y_mostrar_estudiantes():
@@ -259,6 +218,25 @@ def mostrar_datos_dataframe():
         print(df)
     else:
         print("No hay datos registrados.")
+# Función para generar reporte PDF
+def generar_reporte_pdf():
+    if datos:
+        c = canvas.Canvas("reporte_estudiantes.pdf", pagesize=letter)
+        c.setFont("Helvetica", 12)
+        c.drawString(30, 750, "Reporte de Estudiantes")
+        c.drawString(30, 730, "ID    Nombre    Edad    Peso(kg)    Estatura(m)    IMC")
+        y = 710
+        for estudiante in datos:
+            linea = f"{estudiante[0]}    {estudiante[1]}    {estudiante[2]}    {estudiante[3]}    {estudiante[4]}    {estudiante[5]}"
+            c.drawString(30, y, linea)
+            y -= 20
+            if y < 50:
+                c.showPage()
+                y = 750
+        c.save()
+        print("Reporte PDF generado exitosamente: reporte_estudiantes.pdf")
+    else:
+        print("No hay datos registrados.")
 
 # Función principal
 def principal():
@@ -271,7 +249,8 @@ def principal():
         print("5. Cargar datos desde archivos CSV e imprimirlos")
         print("6. Guardar datos en CSV")
         print("7. Generar reporte PDF")
-        print("8. Salir del programa")
+        print("8. Monitoreo de presión arterial de estudiante")
+        print("9. Salir del programa")
 
         seleccion = input("Escriba su elección: ")
 
@@ -290,6 +269,9 @@ def principal():
         elif seleccion == "7":
             generar_reporte_pdf()
         elif seleccion == "8":
+            numero_de_identificacion = entrada_numerica("Ingrese el número de identificación: ", int)
+            monitoreo_presion(numero_de_identificacion)
+        elif seleccion == "9":
             print("Saliendo del programa...")
             break
         else:
