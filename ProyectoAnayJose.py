@@ -62,7 +62,7 @@ def submenu_analisis():
         print("\nSubmenú de Análisis de Datos")
         print("1. Clasificar estudiantes según IMC")
         print("2. Mostrar personas con mayor y menor altura")
-        print("3. Mostrar persona con mayor peso y altura")
+        print("3. Mostrar persona con mayor y menor peso")
         print("4. Volver al menú principal")
 
         seleccion = input("Escriba su elección: ")
@@ -72,7 +72,7 @@ def submenu_analisis():
         elif seleccion == "2":
             altura_extremos()
         elif seleccion == "3":
-            peso_altura_max()
+            peso_extremos()
         elif seleccion == "4":
             break
         else:
@@ -104,14 +104,17 @@ def altura_extremos():
     else:
         print("No hay datos registrados.")
 
-# Función para encontrar mayor peso y altura
-def peso_altura_max():
+# Función para encontrar mayor y menor peso
+def peso_extremos():
     if datos:
         columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
         df = pd.DataFrame(datos, columns=columnas)
-        max_peso_altura = df.loc[(df["Peso (kg)"] * df["Estatura (m)"]).idxmax()]
-        print("\nPersona con mayor peso y altura:")
-        print(max_peso_altura)
+        mayor_peso = df.loc[df["Peso (kg)"].idxmax()]
+        menor_peso = df.loc[df["Peso (kg)"].idxmin()]
+        print("\nPersona con mayor peso:")
+        print(mayor_peso)
+        print("\nPersona con menor peso:")
+        print(menor_peso)
     else:
         print("No hay datos registrados.")
 
@@ -124,6 +127,7 @@ def graficar_datos():
         print("1. Distribución de IMC")
         print("2. Alturas")
         print("3. Pesos")
+        print("4. Salir")
         seleccion = input("Elija una opción: ")
         if seleccion == "1":
             df['IMC'].plot(kind='hist', bins=10, color='skyblue', edgecolor='black')
@@ -141,12 +145,15 @@ def graficar_datos():
             plt.title("Distribución de Pesos")
             plt.ylabel("Peso (kg)")
             plt.savefig('distribucion_pesos.png')
+        elif seleccion == "4":
+            return
         else:
             print("Opción no válida.")
             return
         plt.show()
     else:
         print("No hay datos registrados.")
+
 
 # Función para generar reporte PDF
 def generar_reporte_pdf():
@@ -202,39 +209,6 @@ def peso_altura_max():
         max_peso_altura = df.loc[(df["Peso (kg)"] * df["Estatura (m)"]).idxmax()]
         print("\nPersona con mayor peso y altura:")
         print(max_peso_altura)
-    else:
-        print("No hay datos registrados.")
-
-# Función para graficar distribución general
-def graficar_datos():
-    if datos:
-        columnas = ["ID", "Nombre", "Edad", "Peso (kg)", "Estatura (m)", "IMC", "Presión Sistólica", "Presión Diastólica"]
-        df = pd.DataFrame(datos, columns=columnas)
-        print("\nOpciones de gráficos:")
-        print("1. Distribución de IMC")
-        print("2. Alturas")
-        print("3. Pesos")
-        seleccion = input("Elija una opción: ")
-        if seleccion == "1":
-            df['IMC'].plot(kind='hist', bins=10, color='skyblue', edgecolor='black')
-            plt.title("Distribución del IMC")
-            plt.xlabel("IMC")
-            plt.ylabel("Frecuencia")
-            plt.savefig('distribucion_imc.png')
-        elif seleccion == "2":
-            df['Estatura (m)'].plot(kind='bar', color='lightgreen')
-            plt.title("Distribución de Alturas")
-            plt.ylabel("Altura (m)")
-            plt.savefig('distribucion_alturas.png')
-        elif seleccion == "3":
-            df['Peso (kg)'].plot(kind='bar', color='lightcoral')
-            plt.title("Distribución de Pesos")
-            plt.ylabel("Peso (kg)")
-            plt.savefig('distribucion_pesos.png')
-        else:
-            print("Opción no válida.")
-            return
-        plt.show()
     else:
         print("No hay datos registrados.")
 
